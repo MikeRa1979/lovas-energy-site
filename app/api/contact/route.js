@@ -1,1 +1,62 @@
-(()=>{var e={};e.id=746,e.ids=[746],e.modules={846:e=>{"use strict";e.exports=require("next/dist/compiled/next-server/app-page.runtime.prod.js")},3033:e=>{"use strict";e.exports=require("next/dist/server/app-render/work-unit-async-storage.external.js")},3295:e=>{"use strict";e.exports=require("next/dist/server/app-render/after-task-async-storage.external.js")},3422:(e,r,t)=>{"use strict";t.r(r),t.d(r,{patchFetch:()=>x,routeModule:()=>u,serverHooks:()=>l,workAsyncStorage:()=>p,workUnitAsyncStorage:()=>d});var s={};t.r(s),t.d(s,{POST:()=>c});var o=t(6559),n=t(8088),a=t(7719),i=t(2190);async function c(e){try{let{name:r,email:t,message:s}=await e.json();return console.log("Contact form submission:",{name:r,email:t,message:s}),i.NextResponse.json({success:!0})}catch(e){return console.error("Contact form error:",e),i.NextResponse.json({error:"Error processing contact form"},{status:500})}}let u=new o.AppRouteRouteModule({definition:{kind:n.RouteKind.APP_ROUTE,page:"/api/contact/route",pathname:"/api/contact",filename:"route",bundlePath:"app/api/contact/route"},resolvedPagePath:"/home/nth1/Projects/matt-lovas/lovas-energy/src/app/api/contact/route.ts",nextConfigOutput:"",userland:s}),{workAsyncStorage:p,workUnitAsyncStorage:d,serverHooks:l}=u;function x(){return(0,a.patchFetch)({workAsyncStorage:p,workUnitAsyncStorage:d})}},4870:e=>{"use strict";e.exports=require("next/dist/compiled/next-server/app-route.runtime.prod.js")},6487:()=>{},8335:()=>{},9294:e=>{"use strict";e.exports=require("next/dist/server/app-render/work-async-storage.external.js")}};var r=require("../../../webpack-runtime.js");r.C(e);var t=e=>r(r.s=e),s=r.X(0,[447,580],()=>t(3422));module.exports=s})();
+import { NextResponse } from 'next/server';
+import sgMail from '@sendgrid/mail';
+
+export async function POST(req) {
+  try {
+    const { name, email, message, phone } = await req.json();
+    
+    // Validate required fields
+    if (!name || !email || !message) {
+      return NextResponse.json(
+        { error: 'Name, email, and message are required' },
+        { status: 400 }
+      );
+    }
+    
+    // Set SendGrid API key
+    const apiKey = process.env.SENDGRID_API_KEY;
+    if (!apiKey) {
+      console.error('SENDGRID_API_KEY is not set');
+      return NextResponse.json(
+        { error: 'Server configuration error' },
+        { status: 500 }
+      );
+    }
+    
+    sgMail.setApiKey(apiKey);
+    
+    // Format the email
+    const msg = {
+      to: 'Sales@lovasenergy.com', // Change to your recipient email
+      from: 'website@lovasenergy.com', // Change to your verified sender
+      subject: `New Contact Form Submission from ${name}`,
+      text: `
+        Name: ${name}
+        Email: ${email}
+        Phone: ${phone || 'Not provided'}
+        
+        Message:
+        ${message}
+      `,
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        <p><strong>Message:</strong></p>
+        <p>${message.replace(/\n/g, '<br>')}</p>
+      `,
+    };
+    
+    // Send the email
+    await sgMail.send(msg);
+    
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Contact form error:', error);
+    return NextResponse.json(
+      { error: 'Error processing contact form' },
+      { status: 500 }
+    );
+  }
+}
