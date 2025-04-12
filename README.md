@@ -71,4 +71,51 @@ If emails are being rejected when sending:
 2. Verify the SPF record has fully propagated through DNS
 3. Look for authentication errors in bounce messages, which will indicate what needs to be fixed
 
-If receiving SPF authentication errors with specific IP addresses, contact GoDaddy support to confirm the correct SPF record for their sending infrastructure. 
+If receiving SPF authentication errors with specific IP addresses, contact GoDaddy support to confirm the correct SPF record for their sending infrastructure.
+
+## Contact Form Configuration with Netlify Forms
+
+The website includes a contact form that uses Netlify Forms for easy form handling. This is a much simpler approach that requires no additional API keys or services.
+
+### How It Works
+
+1. The form in `components/Home.js` has the attributes `netlify` and `name="contact"` which tells Netlify to handle it
+2. Netlify automatically detects and processes the form during deployment
+3. Form submissions are stored in the Netlify dashboard
+4. You can configure email notifications in the Netlify dashboard
+
+### Setting Up Notifications
+
+To receive email notifications when someone submits the form:
+
+1. Go to your Netlify dashboard
+2. Navigate to your site > Forms
+3. Click on the "Settings and usage" button for the "contact" form
+4. Under "Form notifications", click "Add notification" and select "Email notification"
+5. Enter the email address where you want to receive notifications
+6. Customize the subject and other settings if desired
+7. Save the notification settings
+
+### Accessing Submissions
+
+To view form submissions:
+
+1. Go to your Netlify dashboard
+2. Navigate to your site > Forms
+3. Click on the "contact" form
+4. View all submissions in the dashboard
+
+### Spam Protection
+
+Netlify Forms includes built-in spam filtering:
+
+1. Basic spam filtering is included automatically
+2. You can add a honeypot field by adding `netlify-honeypot="bot-field"` to your form and including a hidden field with the name "bot-field"
+3. You can add reCAPTCHA by enabling it in the Netlify dashboard
+
+### Customization
+
+To modify the contact form:
+- The form UI is in `components/Home.js`
+- If you make changes to the form fields, Netlify will automatically update during the next deployment
+- No additional API routes or server code is needed 
